@@ -1,9 +1,13 @@
+import { useAuth } from "@/lib/authcontext";
 import { StyleSheet, Text, View } from "react-native";
+import { Button } from "react-native-paper";
 
 export default function Index() {
+  const { signOut } = useAuth();
   return (
     <View style={styles.view}>
       <Text>Welcome to my first App</Text>
+      <Button mode="text" onPress={signOut} icon="logout">Sign Out</Button>
     </View>
   );
 }
@@ -11,9 +15,9 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   view: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   navButton: {
     width: 200,

@@ -7,6 +7,7 @@ type AuthContextType = {
     isLoading: boolean
     signUp: (email: string, password: string) => Promise<string | null>
     signIn: (email: string, password: string) => Promise<string | null>
+    signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -57,9 +58,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return "An error occured during sign in"
         }
     };
+    const signOut = async () => {
+        try {
+            await account.deleteSession("current")
+            setUser(null)
+        } catch (error) {
+            console.error("Error signing out:", error)
+        }
+    }
 
     return (
-        <AuthContext.Provider value={{ user, signUp, signIn, isLoading }}>
+        <AuthContext.Provider value={{ user, signUp, signIn, signOut, isLoading }}>
             {children}
         </AuthContext.Provider>
     );
