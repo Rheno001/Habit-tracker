@@ -1,4 +1,4 @@
-import { Account, Client } from 'react-native-appwrite';
+import { Account, Client, Databases } from 'react-native-appwrite';
 
 export const client = new Client()
     .setPlatform('com.reno.firstapp')
@@ -6,3 +6,7 @@ export const client = new Client()
     .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!);
 
 export const account = new Account(client);
+export const databases = new Databases(client);
+
+export const DATABSE_ID = process.env.EXPO_PUBLIC_DB_ID!;
+export const HABITS_COLLECTION_ID = process.env.EXPO_PUBLIC_HABITS_COLLECTION_ID!;

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function loginScreen(){
+export default function StreaksScreen() {
     <View>
         <Text>
             hELLo THIS IS THE LOGIN Page
