@@ -3,13 +3,14 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ID } from "react-native-appwrite";
-import { Button, SegmentedButtons, TextInput } from "react-native-paper";
+import { Button, SegmentedButtons, Text, TextInput, useTheme } from "react-native-paper";
 import { DATABASE_ID, databases, HABITS_COLLECTION_ID } from "../../lib/appwrite";
 
 const FREQUENCIES = ['daily', 'weekly', 'monthly'];
 type Frequency = (typeof FREQUENCIES)[number];
 
 export default function AddHabitScreen() {
+    const theme = useTheme();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [frequency, setFrequency] = useState<Frequency>('daily');
@@ -24,15 +25,17 @@ export default function AddHabitScreen() {
                 description,
                 frequency,
                 streak_count: 0,
-                userId: user.$id,
+                user_id: user.$id,
                 last_completed: new Date().toISOString(),
                 created_at: new Date().toISOString(),
             });
             router.back();
         } catch (error) {
             if (error instanceof Error) {
-                setError(error.message)
+                setError(error.message);
+                return;
             }
+            setError("There was an error creating the habit");
 
         }
 
@@ -47,6 +50,7 @@ export default function AddHabitScreen() {
                 <SegmentedButtons onValueChange={(value) => setFrequency(value as Frequency)} value={frequency} buttons={FREQUENCIES.map((freq) => ({ value: freq, label: freq.charAt(0).toUpperCase() + freq.slice(1) }))} style={styles.segmentedButtons} />
             </View>
             <Button mode="contained" onPress={handleSubmit} disabled={!title || !description} style={styles.button}>Add Habit</Button>
+            {error && <Text style={{ color: theme.colors.error }}>{error}</Text>}
         </View>
     )
 }
