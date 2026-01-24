@@ -1,10 +1,11 @@
-import { client, DATABASE_ID, databases, HABITS_COLLECTION_ID, RealtimeResponse } from "@/lib/appwrite";
+import { client, COMPLETIONS_COLLECTION_ID, DATABASE_ID, databases, HABITS_COLLECTION_ID, RealtimeResponse } from "@/lib/appwrite";
 import { useAuth } from "@/lib/authcontext";
 import { Habit } from "@/types/database.type";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Query } from "react-native-appwrite";
+import { ID, Query } from "react-native-appwrite";
+import { Swipeable } from "react-native-gesture-handler";
 import { Button, Surface, Text } from "react-native-paper";
 
 export default function Index() {
@@ -62,7 +63,39 @@ export default function Index() {
     catch (error) {
       console.log(error);
     }
+  };
+
+  const handleDeleteHabit = async (habitId: string) => {
+    try {
+      await databases.deleteDocument(DATABASE_ID, HABITS_COLLECTION_ID, habitId)
+
+    } catch (error) {
+      console.error(error);
+
+    }
+  };
+
+  const handleCompleteHabit = async (habitId: string) => {
+    if (!user) return;
+    try {
+      const currentDate = new Date().toISOString()
+      await databases.createDocument(DATABASE_ID, COMPLETIONS_COLLECTION_ID, ID.unique(), {
+        habit_id: habitId,
+        user_id: user?.$id ?? "",
+        completed_at: currentDate,
+      });
+      const habit = habits?.find((h) => h.$id === habitId);
+      if (!habit) return;
+      await databases.updateDocument(DATABASE_ID, HABITS_COLLECTION_ID, habitId, { streak_count: habit.streak_count + 1, last_completed: currentDate })
+    } catch (error) {
+      console.log(error);
+    }
   }
+
+
+
+
+
 
   const renderRightActions = () => (
     <View style={styles.swipeActionRight}>
@@ -95,6 +128,14 @@ export default function Index() {
               overshootRight={false}
               renderLeftActions={renderLeftActions}
               renderRightActions={renderRightActions}
+              onSwipeableOpen={(direction) => {
+                if (direction === "left") {
+                  handleDeleteHabit(habit.$id)
+                } else if (direction === "right") {
+                  handleCompleteHabit(habit.$id)
+                }
+                swipeableRefs.current[habit.$id]?.close();
+              }}
             >
               <Surface style={styles.card} elevation={0}>
                 <View style={styles.cardContent}>
